@@ -10,7 +10,7 @@ public class MyWindow : Gtk.Window {
     private TextView text_view;
     private uint save_source_id = 0;
 
-    public MyWindow () {
+    public MyWindow() {
         this.title = "Autosave App";
         this.window_position = Gtk.WindowPosition.CENTER;
         this.set_default_size(500, 500);
