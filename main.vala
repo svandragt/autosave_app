@@ -97,13 +97,14 @@ public class MyWindow: Gtk.Window {
 
         /* Setup auto save */
         this.text_view.buffer.changed.connect(on_buffer_changed);
+        delete_event.connect(autosave);
     }
 
     private void on_buffer_changed() {
         if (this.save_source_id != 0)
             Source.remove(this.save_source_id);
 
-        this.save_source_id = GLib.Timeout.add_seconds(1, autosave);
+        this.save_source_id = GLib.Timeout.add_seconds(5, autosave);
     }
 
     private bool autosave() {
