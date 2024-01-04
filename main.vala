@@ -1,7 +1,7 @@
 using Gtk;
 using GLib;
 
-public class MyWindow: Gtk.Window {
+public class MyWindow : Gtk.Window {
 
     private GLib.KeyFile config;
     private string app_dir;
@@ -10,7 +10,7 @@ public class MyWindow: Gtk.Window {
     private TextView text_view;
     private uint save_source_id = 0;
 
-    public MyWindow() {
+    public MyWindow () {
         this.title = "Autosave App";
         this.window_position = Gtk.WindowPosition.CENTER;
         this.set_default_size(500, 500);
@@ -37,37 +37,37 @@ public class MyWindow: Gtk.Window {
             GLib.print("Failed to create directory: %s\n", e.message);
         }
 
-        config = new GLib.KeyFile ();
+        config = new GLib.KeyFile();
         try {
-            config.load_from_file (config_dir + "/config.ini", GLib.KeyFileFlags.NONE);
-            int width = config.get_integer ("Window", "width");
-            int height = config.get_integer ("Window", "height");
-            int x = config.get_integer ("Window", "x");
-            int y = config.get_integer ("Window", "y");
-            set_default_size (width, height);
-            move (x,y);
+            config.load_from_file(config_dir + "/config.ini", GLib.KeyFileFlags.NONE);
+            int width = config.get_integer("Window", "width");
+            int height = config.get_integer("Window", "height");
+            int x = config.get_integer("Window", "x");
+            int y = config.get_integer("Window", "y");
+            set_default_size(width, height);
+            move(x, y);
         } catch (Error e) {
-            set_default_size (500, 500); // First-launch defaults
+            set_default_size(500, 500); // First-launch defaults
         }
 
         // Save state on close
-        delete_event.connect ((e) => {
+        delete_event.connect((e) => {
             int width, height;
-            get_size (out width, out height);
+            get_size(out width, out height);
             int x, y;
-            get_position (out x, out y);
-            config.set_integer ("Window", "width", width);
-            config.set_integer ("Window", "height", height);
-            config.set_integer ("Window", "x", x);
-            config.set_integer ("Window", "y", y);
+            get_position(out x, out y);
+            config.set_integer("Window", "width", width);
+            config.set_integer("Window", "height", height);
+            config.set_integer("Window", "x", x);
+            config.set_integer("Window", "y", y);
             try {
-                config.save_to_file (config_dir + "/config.ini");
+                config.save_to_file(config_dir + "/config.ini");
             } catch (Error e) {
-                warning ("Could not save config: %s", e.message);
+                warning("Could not save config: %s", e.message);
             }
             return false; // Continue with normal close
         });
-        
+
         /* Setup text view widget */
         this.text_view = new TextView();
         this.text_view.wrap_mode = WrapMode.WORD_CHAR;
@@ -76,13 +76,13 @@ public class MyWindow: Gtk.Window {
         scrolled_window.add(this.text_view);
         /* Set padding for the text view widget */
         try {
-         var css = new CssProvider();
-         css.load_from_data("* { font: 12px 'Roboto Mono', monospace; padding: 10px; }");
-         var style_context = this.text_view.get_style_context();
-         style_context.add_provider(css, STYLE_PROVIDER_PRIORITY_APPLICATION);
-         } catch (Error e) {
+            var css = new CssProvider();
+            css.load_from_data("* { font: 12px 'Roboto Mono', monospace; padding: 10px; }");
+            var style_context = this.text_view.get_style_context();
+            style_context.add_provider(css, STYLE_PROVIDER_PRIORITY_APPLICATION);
+        } catch (Error e) {
             print("Failed to load CSS: %s\n", e.message);
-         }
+        }
 
         this.add(scrolled_window);
 
@@ -112,7 +112,7 @@ public class MyWindow: Gtk.Window {
 
         /* Get text between the start and end of the buffer */
         this.text_view.buffer.get_bounds(out start, out end);
-        string text = this.text_view.buffer.get_text (start, end, false);
+        string text = this.text_view.buffer.get_text(start, end, false);
 
         try {
             FileUtils.set_contents(filename, text);
