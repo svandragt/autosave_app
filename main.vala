@@ -1,7 +1,33 @@
 using Gtk;
 using GLib;
 
-public class MyWindow : Gtk.Window {
+public class MyApp : Gtk.Application {
+    private MyWindow window;
+
+    public MyApp() {
+        Object(application_id: "com.vandragt.autosave_app");
+    }
+
+    protected override void activate() {
+        if (window == null) {
+            hold(); // Retain application in memory
+            window = new MyWindow();
+            window.show_all();
+            window.destroy.connect(() => {
+                this.release();
+            });
+        } else {
+            window.present();
+        }
+    }
+
+    public static int main(string[] args) {
+        var app = new MyApp();
+        return app.run(args);
+    }
+}
+
+public class MyWindow : Gtk.ApplicationWindow {
 
     private GLib.KeyFile config;
     private string app_dir;
@@ -122,16 +148,5 @@ public class MyWindow : Gtk.Window {
 
         this.save_source_id = 0;
         return false; /* Remove this source */
-    }
-
-    public static int main(string[] args) {
-        Gtk.init(ref args);
-
-        MyWindow window = new MyWindow();
-        window.show_all();
-
-        Gtk.main();
-
-        return 0;
     }
 }
