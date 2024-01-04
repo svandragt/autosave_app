@@ -3,9 +3,11 @@ using GLib;
 
 public class MyWindow: Gtk.Window {
 
-    private TextView text_view;
+    private GLib.KeyFile config;
     private string app_dir;
+    private string config_dir;
     private string filename;
+    private TextView text_view;
     private uint save_source_id = 0;
 
     public MyWindow() {
@@ -15,8 +17,9 @@ public class MyWindow: Gtk.Window {
         this.destroy.connect(Gtk.main_quit);
 
         app_dir = GLib.Environment.get_user_data_dir() + "/autosave_app";
+        config_dir = GLib.Environment.get_user_config_dir() + "/autosave_app";
         filename = app_dir + "/autosave.txt";
-        // Create directory
+        // Create directories
         var dir = GLib.File.new_for_path(app_dir);
         try {
             if (!dir.query_exists()) {
@@ -25,6 +28,45 @@ public class MyWindow: Gtk.Window {
         } catch (GLib.Error e) {
             GLib.print("Failed to create directory: %s\n", e.message);
         }
+        dir = GLib.File.new_for_path(config_dir);
+        try {
+            if (!dir.query_exists()) {
+                dir.make_directory_with_parents();
+            }
+        } catch (GLib.Error e) {
+            GLib.print("Failed to create directory: %s\n", e.message);
+        }
+
+        config = new GLib.KeyFile ();
+        try {
+            config.load_from_file (config_dir + "/config.ini", GLib.KeyFileFlags.NONE);
+            int width = config.get_integer ("Window", "width");
+            int height = config.get_integer ("Window", "height");
+            int x = config.get_integer ("Window", "x");
+            int y = config.get_integer ("Window", "y");
+            set_default_size (width, height);
+            move (x,y);
+        } catch (Error e) {
+            set_default_size (500, 500); // First-launch defaults
+        }
+
+        // Save state on close
+        delete_event.connect ((e) => {
+            int width, height;
+            get_size (out width, out height);
+            int x, y;
+            get_position (out x, out y);
+            config.set_integer ("Window", "width", width);
+            config.set_integer ("Window", "height", height);
+            config.set_integer ("Window", "x", x);
+            config.set_integer ("Window", "y", y);
+            try {
+                config.save_to_file (config_dir + "/config.ini");
+            } catch (Error e) {
+                warning ("Could not save config: %s", e.message);
+            }
+            return false; // Continue with normal close
+        });
         
         /* Setup text view widget */
         this.text_view = new TextView();
